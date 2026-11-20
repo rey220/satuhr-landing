@@ -45,7 +45,7 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="fitur" className="scroll-mt-20 bg-surface py-20 lg:py-24">
+    <section id="fitur" className="scroll-mt-20 bg-primary/[0.05] py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <Reveal className="max-w-2xl">
           <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-support-dark">
