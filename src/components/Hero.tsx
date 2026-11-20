@@ -34,7 +34,7 @@ function DashboardMockup() {
           <div key={s.k} className="rounded-2xl bg-ink/[0.04] p-3 text-center">
             {/* Revisi 1b: angka ringkasan ikut Count-Up, berulang per aturan global */}
             <p className="text-2xl font-extrabold">
-              <Counter end={s.v} duration={1500} />
+              <Counter end={s.v} duration={1500} instantOnLoad />
             </p>
             <p className="text-xs font-semibold text-ink-soft">{s.k}</p>
           </div>
