@@ -50,7 +50,7 @@ Tidak ada perubahan di luar dokumen ini yang akan dikerjakan pada putaran ini.
 - Cyan hanya untuk aksen/garis/label — tidak untuk teks isi.
 
 ### 4.3 Aksesibilitas & gerak
-- Semua animasi menghormati pengaturan `prefers-reduced-motion` di perangkat pengguna.
+- Animasi TIDAK mengacu pada pengaturan `prefers-reduced-motion` / setting animasi Windows — animasi selalu berjalan untuk semua pengunjung (keputusan stakeholder 20 Nov 2026, dicatat di DOKUMENTASI.md Addendum 2; menyimpang secara sadar dari standar WCAG soal gerakan).
 - Animasi hanya memakai properti ringan (transform & opacity) agar performa tetap terjaga.
 
 ## 5. Aturan Global Animasi *(arahan stakeholder)*
