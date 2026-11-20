@@ -10,5 +10,8 @@ const nextConfig = {
   // Kosong untuk domain sendiri (satuhr.id) / Vercel.
   basePath,
   assetPrefix: basePath || undefined,
+  // Isu T3: matikan indikator dev Next.js (lingkaran "N" pojok kiri bawah)
+  // agar tidak menimpa konten saat preview lokal. Build produksi tidak terpengaruh.
+  devIndicators: false,
 };
 export default nextConfig;

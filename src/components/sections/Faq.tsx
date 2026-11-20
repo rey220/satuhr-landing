@@ -1,4 +1,4 @@
-import Reveal from "./Reveal";
+import Reveal from "@/components/motion/Reveal";
 
 const faqs = [
   {

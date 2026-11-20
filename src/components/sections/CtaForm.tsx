@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import Reveal from "./Reveal";
+import Reveal from "@/components/motion/Reveal";
 
 type Errors = Partial<Record<"name" | "email" | "company" | "size", string>>;
 

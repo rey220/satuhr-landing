@@ -58,49 +58,59 @@ Catatan jujur: SEO teknis sudah maksimal, tetapi peringkat Google tetap membutuh
 ```
 src/
   app/
-    layout.tsx     Metadata SEO, JSON-LD, font
-    page.tsx       Komposisi semua section
-    sitemap.ts     Sitemap otomatis
-    globals.css    Design token + sistem animasi (.reveal, .crossfade, .draw-line)
+    layout.tsx          Metadata SEO, JSON-LD, font (root layout — wajib di root app/)
+    globals.css         Design token + animasi CSS (crossfade, progress)
+    sitemap.ts          Sitemap otomatis
+    (marketing)/
+      page.tsx          Komposisi semua section (route group — URL tetap "/")
   components/
-    Header.tsx     Navigasi sticky
-    Hero.tsx       Hero + mockup dashboard (murni JSX/CSS)
-    Stats.tsx      Section statistik
-    Counter.tsx    Animated Number Counter (count-up)
-    Reveal.tsx     Wrapper animasi scroll (fade-in)
-    Features.tsx   8 fitur
-    Roles.tsx      HR Manager vs Staf
-    Steps.tsx      Cara kerja 3 langkah
-    Pricing.tsx    Harga + toggle bulanan/tahunan (client)
-    Testimonials.tsx  Carousel crossfade (client)
-    Faq.tsx        FAQ (details/summary, tanpa JS)
-    CtaForm.tsx    Formulir CTA + validasi + honeypot anti-spam (client)
-    Footer.tsx
-public/            favicon.svg, robots.txt
+    layout/
+      Header.tsx        Navigasi sticky
+      Footer.tsx
+    sections/
+      Hero.tsx          Hero + mockup dashboard (murni JSX/CSS)
+      LogoStrip.tsx     Strip logo klien (teks wordmark, materi demo)
+      Stats.tsx         Section statistik
+      Features.tsx      8 fitur
+      Roles.tsx         HR Manager vs Staf
+      Steps.tsx         Cara kerja 3 langkah
+      Pricing.tsx       Harga + toggle bulanan/tahunan (client)
+      Testimonials.tsx  Slider testimoni (client)
+      Faq.tsx           FAQ (details/summary, tanpa JS)
+      SecurityStrip.tsx Strip keamanan satu baris
+      CtaForm.tsx       Formulir CTA + validasi + honeypot anti-spam (client)
+    motion/
+      Reveal.tsx        Wrapper animasi masuk berbasis GSAP ScrollTrigger
+      Counter.tsx       Animated Number Counter (GSAP)
+      Sway.tsx          Goyangan hero 6 detik (GSAP)
+      DrawLine.tsx      Garis Cara Kerja yang terlukis saat scroll (GSAP)
+public/                 favicon.svg, robots.txt
 ```
+
+Struktur dikelompokkan per kategori sejak merge Revisi 1 ke `main` (20 Nov 2026, atas permintaan stakeholder): komponen rangka di `layout/`, isi halaman di `sections/`, dan primitif animasi di `motion/`. File di root `app/` adalah file yang memang diwajibkan Next.js berada di sana (root layout, stylesheet global, sitemap); halaman utama duduk di route group `(marketing)` agar kelak halaman lain (mis. `(auth)`) bisa berdiri sejajar tanpa mengubah URL.
 
 ## 5. Cara Kerja Animated Number Counter
 
-Komponen `src/components/Counter.tsx`:
+Komponen `src/components/motion/Counter.tsx`:
 
 1. `IntersectionObserver` (threshold 0,35) mendeteksi angka masuk viewport.
 2. Animasi berjalan **satu kali** selama ±1,6 detik memakai `requestAnimationFrame` dengan easing *easeOutExpo* (cepat di awal, melambat halus di akhir).
 3. Format angka memakai `toLocaleString("id-ID")` — pemisah ribuan titik (12.500) dan koma desimal (4,9).
-4. Bila `prefers-reduced-motion` aktif, angka akhir langsung ditampilkan tanpa animasi.
+4. *(Diperbarui oleh addendum GSAP di Bagian 9:)* kini digerakkan tween GSAP dan berulang dua arah; dan per keputusan stakeholder 20 Nov 2026, animasi **tidak** lagi mengacu `prefers-reduced-motion` — animasi selalu berjalan.
 
-Mengubah angka: edit array `stats` di `src/components/Stats.tsx` (`end`, `suffix`, `decimals`).
+Mengubah angka: edit array `stats` di `src/components/sections/Stats.tsx` (`end`, `suffix`, `decimals`).
 
 ## 6. Panduan Mengubah Konten
 
 | Yang diubah | File |
 |---|---|
-| Nama produk / teks hero | `src/components/Hero.tsx`, `src/app/layout.tsx` (title & JSON-LD) |
+| Nama produk / teks hero | `src/components/sections/Hero.tsx`, `src/app/layout.tsx` (title & JSON-LD) |
 | Warna | Token `--color-*` di `src/app/globals.css` |
-| Daftar fitur | Array `features` di `src/components/Features.tsx` |
-| Harga paket | Array `plans` di `src/components/Pricing.tsx` |
-| Testimoni | Array `items` di `src/components/Testimonials.tsx` |
-| FAQ | Array `faqs` di `src/components/Faq.tsx` + samakan dengan JSON-LD di `layout.tsx` |
-| Statistik | Array `stats` di `src/components/Stats.tsx` |
+| Daftar fitur | Array `features` di `src/components/sections/Features.tsx` |
+| Harga paket | Array `plans` di `src/components/sections/Pricing.tsx` |
+| Testimoni | Array `items` di `src/components/sections/Testimonials.tsx` |
+| FAQ | Array `faqs` di `src/components/sections/Faq.tsx` + samakan dengan JSON-LD di `layout.tsx` |
+| Statistik | Array `stats` di `src/components/sections/Stats.tsx` |
 | Domain resmi | Ganti `https://satuhr.id` di `layout.tsx`, `sitemap.ts`, `public/robots.txt` |
 
 ## 7. Deploy
@@ -111,12 +121,42 @@ Mengubah angka: edit array `stats` di `src/components/Stats.tsx` (`end`, `suffix
   3. Framework terdeteksi otomatis sebagai Next.js; tidak ada pengaturan yang perlu diubah. Klik *Deploy*.
   4. Situs terbit di alamat `satuhr-landing.vercel.app` (atau domain sendiri bila sudah dibeli) dan ter-update otomatis setiap ada push ke `main`.
   5. Catatan: untuk Vercel/domain sendiri, build TIDAK memakai variabel `NEXT_PUBLIC_BASE_PATH` (basePath kosong). Variabel itu hanya untuk skenario GitHub Pages di subpath.
-- **Lokal**: `npm install` lalu `npm run build`; folder `out/` adalah hasil static export final yang bisa diunggah ke hosting statis mana pun.
+- **Lokal**: `npm install` lalu `npm run build`; folder `out/` adalah hasil static export final yang bisa diunggah ke hosting statis mana pun. Untuk menjalankan hasil produksi secara lokal gunakan `npx serve@latest out` — perintah `npm run start` (`next start`) **tidak bisa** dipakai dengan konfigurasi `output: "export"` (Next.js menolaknya secara eksplisit).
 - **Alternatif GitHub Pages (tidak dipakai saat ini)**: file workflow `.github/workflows/deploy.yml` sudah disiapkan di salinan lokal proyek dan di file ZIP proyek, tetapi belum ada di repo — token integrasi GitHub yang tersedia untuk Muse tidak diizinkan GitHub menulis file di folder `.github/workflows/` (batasan platform, berlaku untuk semua aplikasi). Pemilik repo dapat menambahkannya manual lewat web GitHub (*Add file → Create new file*) bila suatu saat ingin beralih ke Pages.
 
 ## 8. Keamanan, Aksesibilitas, dan Keterbatasan Fase 1
 
 - Formulir CTA tervalidasi di sisi klien (format email, panjang minimum) dan dilengkapi *honeypot* anti-spam. **Fase 1 bersifat statis**: pengiriman formulir disimulasikan dan menampilkan status sukses di tempat; untuk menerima leads sungguhan, arahkan submit pada `CtaForm.tsx` ke endpoint CRM/API (mis. Formspree, HubSpot, atau API Next.js di fase 2) — satu-satunya perubahan yang dibutuhkan.
-- Aksesibilitas: kontras teks lolos WCAG AA (termasuk keputusan tinta gelap di atas hijau), fokus keyboard terlihat jelas, target sentuh ≥ 44px, label formulir eksplisit, dan dukungan `prefers-reduced-motion`.
+- Aksesibilitas: kontras teks lolos WCAG AA (termasuk keputusan tinta gelap di atas hijau), fokus keyboard terlihat jelas, target sentuh ≥ 44px, dan label formulir eksplisit. Catatan keputusan produk (20 Nov 2026): animasi sengaja **tidak** mengacu `prefers-reduced-motion`/setting animasi Windows — atas keputusan stakeholder, animasi selalu berjalan untuk semua pengunjung (menyimpang dari standar WCAG soal gerakan, dicatat secara sadar di sini).
 - Angka statistik, testimoni, dan harga pada halaman ini adalah **materi demo** untuk evaluasi produk dan harus diganti data asli sebelum peluncuran publik.
 - Roadmap fase 2 (belum dibangun, sesuai kesepakatan agar biaya tidak membengkak di awal): autentikasi (Auth.js), database PostgreSQL, dashboard HR, dan API sesuai desain `api_designer`/`architecture_designer`.
+
+## 9. Putaran Revisi 1 (20 November 2026) — branch `revisi-1`
+
+Dikerjakan berdasarkan `docs/PRD.md` (Putaran Revisi 1), hasil peninjauan preview lokal oleh stakeholder. Ringkasan perubahan:
+
+- **Aturan global animasi**: semua animasi kini *berulang* setiap section masuk viewport lagi (`Reveal` melepas class `is-visible` hanya saat elemen benar-benar keluar layar; `Counter` reset ke 0 dan menghitung ulang).
+- **Revisi 1 (Hero)**: judul + deskripsi bergoyang halus ±6 detik tiap hero masuk layar (`.sway`); angka mockup dashboard (248/12/5) memakai Count-Up.
+- **Revisi 2 (Statistik)**: Count-Up disetel ulang — durasi 2 detik, easing easeOutQuint (lebih smooth).
+- **Revisi 3 (Untuk Siapa)**: kartu kiri masuk dari kiri, kartu kanan dari kanan (variant `Reveal`).
+- **Revisi 4 (Testimoni)**: pergantian geser horizontal mengikuti arah urutan, progress bar 6 detik pada indikator, jeda saat hover/fokus, muncul bertahap (kutipan → inisial → nama), tanda kutip penutup digabung ke kata terakhir agar tidak menggantung.
+- **Revisi 5 (Optimalisasi)**: hero bergradasi halus ke hijau lebih dalam + tinggi dikurangi; strip logo perusahaan (teks redup, demo) di bawah hero; strip keamanan (enkripsi, backup harian, hak akses per peran) sebelum CTA; latar section selang-seling tipis (Fitur & Testimoni hijau sangat pucat); jarak section testimoni dirapatkan; baris "dipercaya" di Statistik dipindah ke strip logo.
+- **Isu teknis**: T1 label "Live" dipindah ke samping label dashboard (tidak lagi tertimpa badge "Payroll November"); T2 garis Cara Kerja berhenti di tengah kotak langkah 03; T3 indikator dev Next.js dimatikan (`devIndicators: false`).
+- **Format desain**: minimalis (PRD Bagian 4.1) menjadi kompas seluruh perubahan di atas.
+- Verifikasi: `npm run build` lolos (pemeriksaan tipe OK), halaman 8,63 kB, JS muatan pertama 111 kB. Perubahan berada di branch `revisi-1`; `main` belum diubah sampai stakeholder menyetujui hasil preview.
+
+### Addendum Putaran Revisi 1 — mesin animasi diganti ke GSAP (20 November 2026)
+
+Umpan balik stakeholder setelah preview branch `revisi-1`: animasi versi CSS dinilai tidak terasa berjalan (gerakan terlalu kecil/cepat untuk disadari; testimoni tidak beranimasi saat section dicapai karena rotasinya berjalan terus di luar layar). Atas persetujuan stakeholder untuk menambah dependency, mesin animasi diganti total ke **GSAP 3 + ScrollTrigger**:
+
+- `Reveal.tsx` ditulis ulang: GSAP `fromTo` (jarak 56–88px, 0,95s, `power3.out`), ScrollTrigger `toggleActions: "play none none reverse"` — replay dua arah sesuai aturan global.
+- `Counter.tsx` ditulis ulang: tween GSAP 2,4s; angka menghitung naik saat masuk dan turun saat section ditinggalkan.
+- Baru: `Sway.tsx` (goyangan hero 6 detik, timeline GSAP, restart tiap masuk layar) dan `DrawLine.tsx` (garis Cara Kerja, scaleX via ScrollTrigger).
+- `Testimonials.tsx`: blok slider kini dibungkus Reveal (beranimasi saat tiba), rotasi berhenti total di luar layar (IntersectionObserver) dan melakukan satu pergantian ±1,6 detik setelah section masuk layar agar gerakannya selalu disaksikan pengguna.
+- `globals.css`: aturan `.reveal`/`.sway`/`.draw-line` versi CSS dihapus; tersisa animasi kecil (crossfade harga, fade testimoni, progress bar).
+- Dampak ukuran: halaman 53,5 kB, JS muatan pertama 156 kB (dari 111 kB) — konsekuensi GSAP, disetujui demi animasi yang benar-benar terasa.
+- Catatan: setelah `git pull`, jalankan `npm install` (dependency baru: gsap) sebelum `npm run build`. File `package-lock.json` di repo akan diperbarui oleh `npm install` tersebut.
+
+### Addendum 2 — gerbang reduced-motion dilepas (20 November 2026)
+
+Akar masalah "animasi tidak berjalan" terkonfirmasi: setting *Animation effects* Windows di mesin stakeholder dalam keadaan mati, dan seluruh animasi project (sesuai standar) mematuhi sinyal `prefers-reduced-motion` sehingga tidak bergerak. Setelah stakeholder menyalakan setting itu, animasi terbukti berjalan. Menyusul itu, stakeholder memutuskan secara eksplisit: **animasi project tidak menjadikan setting animasi Windows sebagai acuan hidup/matinya.** Maka seluruh gerbang reduced-motion dilepas dari kode: pengecekan `matchMedia("(prefers-reduced-motion: reduce)")` di `Reveal.tsx`, `Counter.tsx`, `Sway.tsx`, `DrawLine.tsx`, dan blok `@media (prefers-reduced-motion: reduce)` di `globals.css` dihapus. Animasi kini selalu berjalan untuk semua pengunjung, apa pun setting sistem mereka — perilaku yang sama seperti website animasi pada umumnya. Konsekuensi aksesibilitasnya dicatat di Bagian 8.

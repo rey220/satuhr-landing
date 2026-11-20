@@ -1,5 +1,5 @@
-import Counter from "./Counter";
-import Reveal from "./Reveal";
+import Counter from "@/components/motion/Counter";
+import Reveal from "@/components/motion/Reveal";
 
 const stats = [
   { end: 12500, suffix: "+", label: "Karyawan terkelola setiap hari" },
@@ -24,10 +24,7 @@ export default function Stats() {
           </Reveal>
         ))}
       </div>
-      <p className="pb-8 text-center text-xs font-medium text-ink-soft/80">
-        Dipercaya tim HR di perusahaan teknologi, manufaktur, retail, dan jasa di
-        Jakarta, Bandung, Surabaya, dan Yogyakarta.
-      </p>
+      {/* Baris "dipercaya" dipindah ke LogoStrip (Revisi 5b) agar tidak ganda */}
     </section>
   );
 }

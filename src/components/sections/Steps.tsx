@@ -1,4 +1,5 @@
-import Reveal from "./Reveal";
+import DrawLine from "@/components/motion/DrawLine";
+import Reveal from "@/components/motion/Reveal";
 
 const steps = [
   {
@@ -32,8 +33,10 @@ export default function Steps() {
         </Reveal>
 
         <Reveal className="relative mt-14">
-          <div aria-hidden className="absolute left-0 right-0 top-7 hidden h-1 rounded bg-ink/10 lg:block">
-            <div className="draw-line h-full w-full rounded bg-support" />
+          {/* Isu T2: garis berhenti tepat di tengah kotak langkah 03,
+              tidak lagi memanjang sampai tepi kanan */}
+          <div aria-hidden className="absolute left-7 right-[calc(33.333%-0.875rem)] top-7 hidden h-1 rounded bg-ink/10 lg:block">
+            <DrawLine className="h-full w-full rounded bg-support" />
           </div>
           <ol className="grid gap-10 lg:grid-cols-3 lg:gap-8">
             {steps.map((s) => (
