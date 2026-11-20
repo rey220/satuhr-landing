@@ -17,6 +17,11 @@ if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
  * - Format Indonesia (ribuan titik, desimal koma): 12.500 / 4,9
  * - Keputusan stakeholder (20 Nov 2026): animasi selalu berjalan,
  *   tidak mengacu pada prefers-reduced-motion / setting animasi Windows
+ * - instantOnLoad (dipakai counter dashboard hero): bila elemen sudah
+ *   tampil di layar saat halaman pertama dimuat/di-refresh, angka
+ *   langsung tampil final TANPA bergerak — pemuatan halaman bukan
+ *   "kunjungan section", jadi tidak boleh memicu hitungan. Perilaku
+ *   scroll setelahnya sama persis seperti counter lain.
  */
 export default function Counter({
   end,
@@ -24,6 +29,7 @@ export default function Counter({
   suffix = "",
   decimals = 0,
   duration = 2400,
+  instantOnLoad = false,
   className = "",
 }: {
   end: number;
@@ -31,6 +37,7 @@ export default function Counter({
   suffix?: string;
   decimals?: number;
   duration?: number;
+  instantOnLoad?: boolean;
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -48,8 +55,9 @@ export default function Counter({
     const obj = { v: 0 };
     el.textContent = `${prefix}${fmt(0)}${suffix}`;
 
+    let tween: gsap.core.Tween | undefined;
     const ctx = gsap.context(() => {
-      gsap.to(obj, {
+      tween = gsap.to(obj, {
         v: end,
         duration: duration / 1000,
         ease: "power3.out",
@@ -63,8 +71,15 @@ export default function Counter({
         },
       });
     });
+    // Dashboard hero: elemen sudah di layar sejak halaman dimuat, jadi
+    // ScrollTrigger langsung menembakkan onEnter saat refresh. Lewati
+    // pemutaran perdana itu — lompat ke angka final tanpa gerakan.
+    if (instantOnLoad && tween?.scrollTrigger) {
+      ScrollTrigger.refresh();
+      if (tween.scrollTrigger.isActive) tween.progress(1);
+    }
     return () => ctx.revert();
-  }, [end, prefix, suffix, decimals, duration]);
+  }, [end, prefix, suffix, decimals, duration, instantOnLoad]);
 
   return (
     <span ref={ref} className={className}>
