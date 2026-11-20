@@ -1,5 +1,7 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import LogoStrip from "@/components/LogoStrip";
+import SecurityStrip from "@/components/SecurityStrip";
 import Stats from "@/components/Stats";
 import Features from "@/components/Features";
 import Roles from "@/components/Roles";
@@ -16,6 +18,7 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
+        <LogoStrip />
         <Stats />
         <Features />
         <Roles />
@@ -23,6 +26,7 @@ export default function Home() {
         <Pricing />
         <Testimonials />
         <Faq />
+        <SecurityStrip />
         <CtaForm />
       </main>
       <Footer />
