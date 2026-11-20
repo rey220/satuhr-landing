@@ -17,7 +17,8 @@ export default function DrawLine({ className = "" }: { className?: string }) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Keputusan stakeholder (20 Nov 2026): tanpa gerbang reduced-motion —
+    // animasi selalu berjalan, tidak mengacu setting animasi Windows.
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
