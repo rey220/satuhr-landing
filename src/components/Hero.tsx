@@ -1,5 +1,6 @@
 import Counter from "./Counter";
 import Reveal from "./Reveal";
+import Sway from "./Sway";
 
 /** Mockup dashboard digambar dengan JSX/CSS — bukan gambar stok generik. */
 function DashboardMockup() {
@@ -92,24 +93,26 @@ export default function Hero() {
             </p>
           </Reveal>
           <Reveal delay={100}>
-            {/* Revisi 1a: judul bergoyang halus ±6 detik tiap hero masuk layar */}
-            <h1 className="sway mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
-              Semua urusan HR berantakan di spreadsheet?
-              <span className="mt-2 block underline decoration-support decoration-[6px] underline-offset-8">
-                Satukan di SatuHR.
-              </span>
-            </h1>
+            {/* Revisi 1a: judul bergoyang halus ±6 detik tiap hero masuk layar
+                (Sway berjalan setelah animasi masuk Reveal selesai) */}
+            <Sway delay={0.85}>
+              <h1 className="mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
+                Semua urusan HR berantakan di spreadsheet?
+                <span className="mt-2 block underline decoration-support decoration-[6px] underline-offset-8">
+                  Satukan di SatuHR.
+                </span>
+              </h1>
+            </Sway>
           </Reveal>
           <Reveal delay={200}>
-            {/* Revisi 1a: deskripsi ikut bergoyang, jeda sedikit setelah judul */}
-            <p
-              className="sway mt-6 max-w-xl text-lg font-medium leading-relaxed text-ink/85"
-              style={{ animationDelay: "1.1s" }}
-            >
-              Database karyawan, absensi, cuti, payroll, sampai penilaian kinerja —
-              dalam satu sistem yang dipakai HR Manager dan seluruh staf setiap hari.
-              Tanpa rekap manual, tanpa data ganda.
-            </p>
+            {/* Revisi 1a: deskripsi ikut bergoyang, sedikit setelah judul */}
+            <Sway delay={1.05}>
+              <p className="mt-6 max-w-xl text-lg font-medium leading-relaxed text-ink/85">
+                Database karyawan, absensi, cuti, payroll, sampai penilaian kinerja —
+                dalam satu sistem yang dipakai HR Manager dan seluruh staf setiap hari.
+                Tanpa rekap manual, tanpa data ganda.
+              </p>
+            </Sway>
           </Reveal>
           <Reveal delay={300}>
             <div className="mt-9 flex flex-wrap items-center gap-4">
