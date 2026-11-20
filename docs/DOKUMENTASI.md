@@ -86,7 +86,7 @@ Komponen `src/components/Counter.tsx`:
 1. `IntersectionObserver` (threshold 0,35) mendeteksi angka masuk viewport.
 2. Animasi berjalan **satu kali** selama ±1,6 detik memakai `requestAnimationFrame` dengan easing *easeOutExpo* (cepat di awal, melambat halus di akhir).
 3. Format angka memakai `toLocaleString("id-ID")` — pemisah ribuan titik (12.500) dan koma desimal (4,9).
-4. Bila `prefers-reduced-motion` aktif, angka akhir langsung ditampilkan tanpa animasi.
+4. *(Diperbarui oleh addendum GSAP di Bagian 9:)* kini digerakkan tween GSAP dan berulang dua arah; dan per keputusan stakeholder 20 Nov 2026, animasi **tidak** lagi mengacu `prefers-reduced-motion` — animasi selalu berjalan.
 
 Mengubah angka: edit array `stats` di `src/components/Stats.tsx` (`end`, `suffix`, `decimals`).
 
@@ -117,7 +117,7 @@ Mengubah angka: edit array `stats` di `src/components/Stats.tsx` (`end`, `suffix
 ## 8. Keamanan, Aksesibilitas, dan Keterbatasan Fase 1
 
 - Formulir CTA tervalidasi di sisi klien (format email, panjang minimum) dan dilengkapi *honeypot* anti-spam. **Fase 1 bersifat statis**: pengiriman formulir disimulasikan dan menampilkan status sukses di tempat; untuk menerima leads sungguhan, arahkan submit pada `CtaForm.tsx` ke endpoint CRM/API (mis. Formspree, HubSpot, atau API Next.js di fase 2) — satu-satunya perubahan yang dibutuhkan.
-- Aksesibilitas: kontras teks lolos WCAG AA (termasuk keputusan tinta gelap di atas hijau), fokus keyboard terlihat jelas, target sentuh ≥ 44px, label formulir eksplisit, dan dukungan `prefers-reduced-motion`.
+- Aksesibilitas: kontras teks lolos WCAG AA (termasuk keputusan tinta gelap di atas hijau), fokus keyboard terlihat jelas, target sentuh ≥ 44px, dan label formulir eksplisit. Catatan keputusan produk (20 Nov 2026): animasi sengaja **tidak** mengacu `prefers-reduced-motion`/setting animasi Windows — atas keputusan stakeholder, animasi selalu berjalan untuk semua pengunjung (menyimpang dari standar WCAG soal gerakan, dicatat secara sadar di sini).
 - Angka statistik, testimoni, dan harga pada halaman ini adalah **materi demo** untuk evaluasi produk dan harus diganti data asli sebelum peluncuran publik.
 - Roadmap fase 2 (belum dibangun, sesuai kesepakatan agar biaya tidak membengkak di awal): autentikasi (Auth.js), database PostgreSQL, dashboard HR, dan API sesuai desain `api_designer`/`architecture_designer`.
 
@@ -146,3 +146,7 @@ Umpan balik stakeholder setelah preview branch `revisi-1`: animasi versi CSS din
 - `globals.css`: aturan `.reveal`/`.sway`/`.draw-line` versi CSS dihapus; tersisa animasi kecil (crossfade harga, fade testimoni, progress bar).
 - Dampak ukuran: halaman 53,5 kB, JS muatan pertama 156 kB (dari 111 kB) — konsekuensi GSAP, disetujui demi animasi yang benar-benar terasa.
 - Catatan: setelah `git pull`, jalankan `npm install` (dependency baru: gsap) sebelum `npm run build`. File `package-lock.json` di repo akan diperbarui oleh `npm install` tersebut.
+
+### Addendum 2 — gerbang reduced-motion dilepas (20 November 2026)
+
+Akar masalah "animasi tidak berjalan" terkonfirmasi: setting *Animation effects* Windows di mesin stakeholder dalam keadaan mati, dan seluruh animasi project (sesuai standar) mematuhi sinyal `prefers-reduced-motion` sehingga tidak bergerak. Setelah stakeholder menyalakan setting itu, animasi terbukti berjalan. Menyusul itu, stakeholder memutuskan secara eksplisit: **animasi project tidak menjadikan setting animasi Windows sebagai acuan hidup/matinya.** Maka seluruh gerbang reduced-motion dilepas dari kode: pengecekan `matchMedia("(prefers-reduced-motion: reduce)")` di `Reveal.tsx`, `Counter.tsx`, `Sway.tsx`, `DrawLine.tsx`, dan blok `@media (prefers-reduced-motion: reduce)` di `globals.css` dihapus. Animasi kini selalu berjalan untuk semua pengunjung, apa pun setting sistem mereka — perilaku yang sama seperti website animasi pada umumnya. Konsekuensi aksesibilitasnya dicatat di Bagian 8.
