@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Reveal from "./Reveal";
 
 const items = [
@@ -25,6 +25,10 @@ const items = [
 ];
 
 const ROTATE_MS = 6000;
+const SLIDE_MS = 680;
+// Slide terakhir adalah salinan slide pertama — pola "seamless loop":
+// track meluncur maju terus, lalu melompat diam-diam kembali ke awal.
+const slides = [...items, items[0]];
 
 /** Tanda kutip penutup digabung dengan kata terakhir (nowrap) agar tidak
     menggantung terpisah di baris sendiri — perbaikan isu dari audit. */
@@ -39,44 +43,54 @@ function renderQuote(q: string): ReactNode {
 }
 
 /**
- * Revisi 4 — testimoni bergeser horizontal halus:
- * lama keluar ke satu sisi, baru masuk dari sisi berlawanan; arah mengikuti
- * urutan. Indikator berisi progress bar 6 detik; rotasi jeda saat hover/fokus;
- * isi muncul bertahap (kutipan → inisial → nama). Tanpa efek berlebih.
+ * Revisi 4 (diperbaiki) — testimoni sebagai track slider:
+ * semua slide berjajar menyamping dan track-nya yang bergeser
+ * (translateX + transisi), BUKAN slide yang ditumpuk — cara tumpuk
+ * membuat teks lama & baru bertabrakan di tengah dan terlihat kasar.
+ * Progress bar 6 detik pada indikator; jeda saat hover/fokus;
+ * isi slide aktif muncul bertahap (kutipan → inisial → nama, opacity saja).
  */
 export default function Testimonials() {
-  const [idx, setIdx] = useState(0);
-  const [prev, setPrev] = useState<number | null>(null);
-  const [dir, setDir] = useState<1 | -1>(1);
+  const [pos, setPos] = useState(0);
+  const [animate, setAnimate] = useState(true);
   const [paused, setPaused] = useState(false);
   const [run, setRun] = useState(0);
-  const [first, setFirst] = useState(true);
+  const jumpTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const goTo = useCallback(
-    (n: number, d: 1 | -1) => {
-      if (n === idx) return;
-      setPrev(idx);
-      setDir(d);
-      setIdx(n);
-      setRun((r) => r + 1);
-      setFirst(false);
-    },
-    [idx]
-  );
+  const active = pos % items.length;
 
-  // Bersihkan testimoni lama setelah animasi keluar selesai
+  // Setelah meluncur ke slide salinan (pos terakhir), lompat diam-diam
+  // ke slide pertama asli tanpa transisi, lalu nyalakan lagi transisinya.
   useEffect(() => {
-    if (prev === null) return;
-    const t = setTimeout(() => setPrev(null), 580);
-    return () => clearTimeout(t);
-  }, [prev]);
+    if (pos !== items.length) return;
+    jumpTimer.current = setTimeout(() => {
+      setAnimate(false);
+      setPos(0);
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => setAnimate(true))
+      );
+    }, SLIDE_MS + 40);
+    return () => {
+      if (jumpTimer.current) clearTimeout(jumpTimer.current);
+    };
+  }, [pos]);
 
   // Rotasi otomatis — timer penuh per slide, jeda saat hover/fokus
   useEffect(() => {
     if (paused) return;
-    const t = setTimeout(() => goTo((idx + 1) % items.length, 1), ROTATE_MS);
+    const t = setTimeout(() => {
+      setPos((p) => p + 1);
+      setRun((r) => r + 1);
+    }, ROTATE_MS);
     return () => clearTimeout(t);
-  }, [idx, paused, run, goTo]);
+  }, [pos, paused, run]);
+
+  const goToDot = (i: number) => {
+    if (i === active) return;
+    setAnimate(true);
+    setPos(i);
+    setRun((r) => r + 1);
+  };
 
   return (
     <section
@@ -94,26 +108,22 @@ export default function Testimonials() {
           </p>
         </Reveal>
 
-        <div className="mt-8 grid" aria-live="polite">
-          {items.map((item, i) => {
-            const isActive = i === idx;
-            const isPrev = i === prev;
-            const anim = isActive
-              ? first
-                ? ""
-                : dir === 1
-                  ? "t-in-right"
-                  : "t-in-left"
-              : isPrev
-                ? dir === 1
-                  ? "t-out-left"
-                  : "t-out-right"
-                : "pointer-events-none opacity-0";
-            return (
+        <div className="mt-8 overflow-hidden" aria-live="polite">
+          <div
+            className="flex"
+            style={{
+              transform: `translateX(-${pos * 100}%)`,
+              transition: animate
+                ? `transform ${SLIDE_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`
+                : "none",
+              willChange: "transform",
+            }}
+          >
+            {slides.map((item, i) => (
               <figure
-                key={item.name}
-                aria-hidden={!isActive}
-                className={`col-start-1 row-start-1 ${anim} ${isActive ? "t-active" : ""}`}
+                key={`${item.name}-${i}`}
+                aria-hidden={i !== pos}
+                className={`w-full shrink-0 px-2 ${i === pos ? "t-active" : ""}`}
               >
                 <blockquote className="t-fade text-2xl font-bold leading-snug tracking-tight sm:text-[1.75rem]">
                   {renderQuote(item.quote)}
@@ -134,8 +144,8 @@ export default function Testimonials() {
                   </div>
                 </figcaption>
               </figure>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
         <div className="mt-8 flex justify-center gap-2.5">
@@ -143,16 +153,16 @@ export default function Testimonials() {
             <button
               key={item.name}
               type="button"
-              onClick={() => goTo(i, i > idx ? 1 : -1)}
+              onClick={() => goToDot(i)}
               aria-label={`Tampilkan testimoni ${i + 1}`}
-              aria-current={i === idx}
+              aria-current={i === active}
               className={`h-2.5 rounded-full transition-all duration-300 ${
-                i === idx
+                i === active
                   ? "w-10 overflow-hidden bg-primary/25"
                   : "w-2.5 bg-ink/20 hover:bg-ink/40"
               }`}
             >
-              {i === idx && (
+              {i === active && (
                 <span
                   key={run}
                   className="t-progress block h-full w-full rounded-full bg-primary"
