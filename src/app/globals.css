@@ -71,7 +71,9 @@ body {
   100% { transform: translateX(0); }
 }
 .is-visible .sway {
-  animation: hero-sway 6s ease-in-out 0.3s both;
+  /* Delay 0,9s: menunggu animasi masuk (Reveal, 0,7s) selesai dulu,
+     agar dua gerakan transform tidak bertumpuk dan terasa kasar */
+  animation: hero-sway 6s ease-in-out 0.9s both;
 }
 
 /* Fade-out lembut generik */
@@ -83,33 +85,17 @@ body {
   animation: crossfade-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* ---------- Revisi 4: testimoni geser horizontal ----------
-   Testimoni lama keluar ke satu sisi, yang baru masuk dari sisi berlawanan;
-   arah mengikuti urutan (state dir di Testimonials.tsx). */
-@keyframes t-in-right {
-  from { opacity: 0; transform: translateX(64px); }
-  to { opacity: 1; transform: translateX(0); }
+/* ---------- Revisi 4: testimoni track slider ----------
+   Pergeseran dilakukan track (translateX + transisi di Testimonials.tsx).
+   Di sini hanya fade opacity untuk isi slide aktif — tanpa transform,
+   agar tidak bertabrakan dengan gerakan track dan tetap smooth. */
+@keyframes fade-only {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-@keyframes t-in-left {
-  from { opacity: 0; transform: translateX(-64px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-@keyframes t-out-left {
-  from { opacity: 1; transform: translateX(0); }
-  to { opacity: 0; transform: translateX(-64px); }
-}
-@keyframes t-out-right {
-  from { opacity: 1; transform: translateX(0); }
-  to { opacity: 0; transform: translateX(64px); }
-}
-.t-in-right { animation: t-in-right 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.t-in-left { animation: t-in-left 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.t-out-left { animation: t-out-left 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.t-out-right { animation: t-out-right 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
-
 /* Muncul bertahap di dalam testimoni aktif: kutipan → inisial → nama */
 .t-active .t-fade {
-  animation: crossfade-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: fade-only 0.5s ease both;
   animation-delay: var(--t-delay, 0ms);
 }
 
@@ -151,7 +137,6 @@ select:focus-visible {
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
   .crossfade, .draw-line, .sway,
-  .t-in-right, .t-in-left, .t-out-left, .t-out-right,
   .t-active .t-fade, .t-progress { animation: none; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
