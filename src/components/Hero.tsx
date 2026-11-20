@@ -1,3 +1,4 @@
+import Counter from "./Counter";
 import Reveal from "./Reveal";
 
 /** Mockup dashboard digambar dengan JSX/CSS — bukan gambar stok generik. */
@@ -10,26 +11,30 @@ function DashboardMockup() {
   ];
   return (
     <div className="relative rounded-3xl bg-surface p-5 shadow-[0_32px_64px_-24px_rgba(11,36,23,0.45)] sm:p-6">
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-ink-soft">
-            Dashboard HR — Hari Ini
-          </p>
-          <p className="mt-1 text-lg font-extrabold">Ringkasan Kehadiran</p>
-        </div>
-        <span className="rounded-full bg-primary/20 px-3 py-1 text-xs font-bold text-ink">
-          Live
-        </span>
+      <div className="mb-5">
+        {/* Isu T1: label "Live" dipindah ke sisi kiri, di samping label section,
+            agar tidak lagi tertimpa badge melayang "Payroll November". */}
+        <p className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-widest text-ink-soft">
+          Dashboard HR — Hari Ini
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/20 px-2.5 py-0.5 text-[10px] font-extrabold tracking-normal text-ink">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary-dark" aria-hidden />
+            Live
+          </span>
+        </p>
+        <p className="mt-1 text-lg font-extrabold">Ringkasan Kehadiran</p>
       </div>
 
       <div className="mb-5 grid grid-cols-3 gap-3">
         {[
-          { k: "Hadir", v: "248" },
-          { k: "Cuti", v: "12" },
-          { k: "Izin", v: "5" },
+          { k: "Hadir", v: 248 },
+          { k: "Cuti", v: 12 },
+          { k: "Izin", v: 5 },
         ].map((s) => (
           <div key={s.k} className="rounded-2xl bg-ink/[0.04] p-3 text-center">
-            <p className="text-2xl font-extrabold">{s.v}</p>
+            {/* Revisi 1b: angka ringkasan ikut Count-Up, berulang per aturan global */}
+            <p className="text-2xl font-extrabold">
+              <Counter end={s.v} duration={1500} />
+            </p>
             <p className="text-xs font-semibold text-ink-soft">{s.k}</p>
           </div>
         ))}
@@ -68,13 +73,17 @@ function DashboardMockup() {
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-primary">
+    /* Revisi 5a: gradasi halus hijau terang → lebih dalam di bawah,
+       memberi kedalaman tanpa mengubah identitas warna */
+    <section className="relative overflow-hidden bg-gradient-to-b from-primary via-primary to-primary-dark">
       {/* Dekorasi cyan: garis + lingkaran tipis, bukan gradient ungu generik */}
       <div aria-hidden className="pointer-events-none absolute -left-24 top-24 h-72 w-72 rounded-full border-[22px] border-support/40" />
       <div aria-hidden className="pointer-events-none absolute -right-16 bottom-10 h-52 w-52 rounded-full bg-support/30 blur-2xl" />
       <div aria-hidden className="pointer-events-none absolute left-0 top-0 h-1.5 w-full bg-support" />
 
-      <div className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-20 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:pb-28 lg:pt-24">
+      {/* Revisi 5a: tinggi hero dikurangi agar CTA + awal section berikutnya
+          terlihat tanpa scroll di layar laptop umum */}
+      <div className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-14 pt-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:pb-20 lg:pt-16">
         <div>
           <Reveal>
             <p className="inline-flex items-center gap-2 rounded-full bg-surface/85 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-ink">
@@ -83,7 +92,8 @@ export default function Hero() {
             </p>
           </Reveal>
           <Reveal delay={100}>
-            <h1 className="mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
+            {/* Revisi 1a: judul bergoyang halus ±6 detik tiap hero masuk layar */}
+            <h1 className="sway mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
               Semua urusan HR berantakan di spreadsheet?
               <span className="mt-2 block underline decoration-support decoration-[6px] underline-offset-8">
                 Satukan di SatuHR.
@@ -91,7 +101,11 @@ export default function Hero() {
             </h1>
           </Reveal>
           <Reveal delay={200}>
-            <p className="mt-6 max-w-xl text-lg font-medium leading-relaxed text-ink/85">
+            {/* Revisi 1a: deskripsi ikut bergoyang, jeda sedikit setelah judul */}
+            <p
+              className="sway mt-6 max-w-xl text-lg font-medium leading-relaxed text-ink/85"
+              style={{ animationDelay: "0.5s" }}
+            >
               Database karyawan, absensi, cuti, payroll, sampai penilaian kinerja —
               dalam satu sistem yang dipakai HR Manager dan seluruh staf setiap hari.
               Tanpa rekap manual, tanpa data ganda.
