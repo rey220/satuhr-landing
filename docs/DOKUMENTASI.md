@@ -111,7 +111,7 @@ Mengubah angka: edit array `stats` di `src/components/Stats.tsx` (`end`, `suffix
   3. Framework terdeteksi otomatis sebagai Next.js; tidak ada pengaturan yang perlu diubah. Klik *Deploy*.
   4. Situs terbit di alamat `satuhr-landing.vercel.app` (atau domain sendiri bila sudah dibeli) dan ter-update otomatis setiap ada push ke `main`.
   5. Catatan: untuk Vercel/domain sendiri, build TIDAK memakai variabel `NEXT_PUBLIC_BASE_PATH` (basePath kosong). Variabel itu hanya untuk skenario GitHub Pages di subpath.
-- **Lokal**: `npm install` lalu `npm run build`; folder `out/` adalah hasil static export final yang bisa diunggah ke hosting statis mana pun.
+- **Lokal**: `npm install` lalu `npm run build`; folder `out/` adalah hasil static export final yang bisa diunggah ke hosting statis mana pun. Untuk menjalankan hasil produksi secara lokal gunakan `npx serve@latest out` — perintah `npm run start` (`next start`) **tidak bisa** dipakai dengan konfigurasi `output: "export"` (Next.js menolaknya secara eksplisit).
 - **Alternatif GitHub Pages (tidak dipakai saat ini)**: file workflow `.github/workflows/deploy.yml` sudah disiapkan di salinan lokal proyek dan di file ZIP proyek, tetapi belum ada di repo — token integrasi GitHub yang tersedia untuk Muse tidak diizinkan GitHub menulis file di folder `.github/workflows/` (batasan platform, berlaku untuk semua aplikasi). Pemilik repo dapat menambahkannya manual lewat web GitHub (*Add file → Create new file*) bila suatu saat ingin beralih ke Pages.
 
 ## 8. Keamanan, Aksesibilitas, dan Keterbatasan Fase 1
