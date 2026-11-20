@@ -54,10 +54,39 @@ export default function Testimonials() {
   const [pos, setPos] = useState(0);
   const [animate, setAnimate] = useState(true);
   const [paused, setPaused] = useState(false);
+  const [inView, setInView] = useState(false);
   const [run, setRun] = useState(0);
   const jumpTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
   const active = pos % items.length;
+  const effectivePaused = paused || !inView;
+
+  // Rotasi hanya hidup saat section terlihat; di luar layar ia berhenti
+  // total, sehingga pengguna selalu menyaksikan gerakannya dari awal
+  // setiap kali tiba di section ini (keluhan stakeholder: "tidak ada
+  // animasi ketika saya scroll ke bagian ini").
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => setInView(entries[0].intersectionRatio >= 0.3),
+      { threshold: [0, 0.3] }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  // Sesaat setelah section masuk layar (±1,6 detik), lakukan satu
+  // pergantian slide agar gerakannya langsung terlihat oleh pengguna.
+  useEffect(() => {
+    if (!inView) return;
+    const t = setTimeout(() => {
+      setPos((p) => p + 1);
+      setRun((r) => r + 1);
+    }, 1600);
+    return () => clearTimeout(t);
+  }, [inView]);
 
   // Setelah meluncur ke slide salinan (pos terakhir), lompat diam-diam
   // ke slide pertama asli tanpa transisi, lalu nyalakan lagi transisinya.
@@ -75,15 +104,16 @@ export default function Testimonials() {
     };
   }, [pos]);
 
-  // Rotasi otomatis — timer penuh per slide, jeda saat hover/fokus
+  // Rotasi otomatis — timer penuh per slide; jeda saat hover/fokus
+  // dan saat section di luar layar
   useEffect(() => {
-    if (paused) return;
+    if (effectivePaused) return;
     const t = setTimeout(() => {
       setPos((p) => p + 1);
       setRun((r) => r + 1);
     }, ROTATE_MS);
     return () => clearTimeout(t);
-  }, [pos, paused, run]);
+  }, [pos, effectivePaused, run]);
 
   const goToDot = (i: number) => {
     if (i === active) return;
@@ -94,6 +124,7 @@ export default function Testimonials() {
 
   return (
     <section
+      ref={sectionRef}
       aria-label="Testimoni pelanggan"
       className="bg-primary/[0.05] py-14 lg:py-16"
       onMouseEnter={() => setPaused(true)}
@@ -108,7 +139,8 @@ export default function Testimonials() {
           </p>
         </Reveal>
 
-        <div className="mt-8 overflow-hidden" aria-live="polite">
+        <Reveal delay={120} className="mt-8">
+        <div className="overflow-hidden" aria-live="polite">
           <div
             className="flex"
             style={{
@@ -166,12 +198,13 @@ export default function Testimonials() {
                 <span
                   key={run}
                   className="t-progress block h-full w-full rounded-full bg-primary"
-                  style={{ animationPlayState: paused ? "paused" : "running" }}
+                  style={{ animationPlayState: effectivePaused ? "paused" : "running" }}
                 />
               )}
             </button>
           ))}
         </div>
+        </Reveal>
       </div>
     </section>
   );
