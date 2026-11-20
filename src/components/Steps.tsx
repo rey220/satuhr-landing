@@ -1,3 +1,4 @@
+import DrawLine from "./DrawLine";
 import Reveal from "./Reveal";
 
 const steps = [
@@ -35,7 +36,7 @@ export default function Steps() {
           {/* Isu T2: garis berhenti tepat di tengah kotak langkah 03,
               tidak lagi memanjang sampai tepi kanan */}
           <div aria-hidden className="absolute left-7 right-[calc(33.333%-0.875rem)] top-7 hidden h-1 rounded bg-ink/10 lg:block">
-            <div className="draw-line h-full w-full rounded bg-support" />
+            <DrawLine className="h-full w-full rounded bg-support" />
           </div>
           <ol className="grid gap-10 lg:grid-cols-3 lg:gap-8">
             {steps.map((s) => (
