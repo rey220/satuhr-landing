@@ -38,7 +38,9 @@ export default function Reveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Keputusan stakeholder (20 Nov 2026): animasi TIDAK mengacu pada
+    // prefers-reduced-motion / setting animasi Windows — animasi selalu
+    // berjalan. Karena itu tidak ada gerbang reduced-motion di sini.
 
     const from: gsap.TweenVars = { opacity: 0 };
     if (variant === "up") from.y = 56;
