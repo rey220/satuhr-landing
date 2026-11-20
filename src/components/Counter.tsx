@@ -1,23 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Counter — Animated Number Counter (Count-Up Animation).
- * - Mulai menghitung saat elemen masuk viewport (IntersectionObserver)
- * - requestAnimationFrame + easing easeOutQuint selama ±2 detik:
- *   cepat di awal, melambat sangat halus di akhir (Revisi 2 — lebih smooth)
- * - BERULANG sesuai aturan global (PRD Bagian 5): saat elemen benar-benar
- *   keluar layar, hitungan direset ke 0 dan berjalan lagi saat kembali.
- * - Format angka Indonesia (pemisah ribuan titik): 12.500
- * - Menghormati prefers-reduced-motion: langsung tampil angka akhir
+ * Counter — Animated Number Counter (Count-Up) berbasis GSAP.
+ * - Berjalan ±2,4 detik dengan easing power3.out saat elemen masuk layar
+ * - BERULANG sesuai aturan global (PRD Bagian 5): ScrollTrigger
+ *   toggleActions reverse membuat angka menghitung turun kembali
+ *   saat section ditinggalkan, dan naik lagi saat dikunjungi ulang —
+ *   gerakannya selalu terlihat dua arah, tidak pernah "sudah selesai"
+ *   sebelum pengguna sempat melihat.
+ * - Format Indonesia (ribuan titik, desimal koma): 12.500 / 4,9
+ * - prefers-reduced-motion: langsung angka akhir, tanpa animasi
  */
 export default function Counter({
   end,
   prefix = "",
   suffix = "",
   decimals = 0,
-  duration = 2000,
+  duration = 2400,
   className = "",
 }: {
   end: number;
@@ -28,61 +33,50 @@ export default function Counter({
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const raf = useRef<number>(0);
-  const [value, setValue] = useState(0);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (reduceMotion) {
-      setValue(end);
+    const fmt = (v: number) =>
+      v.toLocaleString("id-ID", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      });
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      el.textContent = `${prefix}${fmt(end)}${suffix}`;
       return;
     }
 
-    const start = () => {
-      cancelAnimationFrame(raf.current);
-      const t0 = performance.now();
-      const tick = (now: number) => {
-        const p = Math.min((now - t0) / duration, 1);
-        const eased = 1 - Math.pow(1 - p, 5); // easeOutQuint
-        setValue(end * eased);
-        if (p < 1) raf.current = requestAnimationFrame(tick);
-      };
-      raf.current = requestAnimationFrame(tick);
-    };
+    const obj = { v: 0 };
+    el.textContent = `${prefix}${fmt(0)}${suffix}`;
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        const e = entries[0];
-        if (e.intersectionRatio >= 0.35) {
-          start();
-        } else if (e.intersectionRatio === 0) {
-          cancelAnimationFrame(raf.current);
-          setValue(0);
-        }
-      },
-      { threshold: [0, 0.35] }
-    );
-    io.observe(el);
-    return () => {
-      io.disconnect();
-      cancelAnimationFrame(raf.current);
-    };
-  }, [end, duration]);
-
-  const formatted = value.toLocaleString("id-ID", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
+    const ctx = gsap.context(() => {
+      gsap.to(obj, {
+        v: end,
+        duration: duration / 1000,
+        ease: "power3.out",
+        onUpdate: () => {
+          el.textContent = `${prefix}${fmt(obj.v)}${suffix}`;
+        },
+        scrollTrigger: {
+          trigger: el,
+          start: "top 90%",
+          toggleActions: "play none none reverse",
+        },
+      });
+    });
+    return () => ctx.revert();
+  }, [end, prefix, suffix, decimals, duration]);
 
   return (
     <span ref={ref} className={className}>
       {prefix}
-      {formatted}
+      {(0).toLocaleString("id-ID", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      })}
       {suffix}
     </span>
   );
