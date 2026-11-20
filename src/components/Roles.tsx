@@ -40,7 +40,8 @@ export default function Roles() {
 
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
           {roles.map((r, i) => (
-            <Reveal key={r.tag} delay={i * 150}>
+            /* Revisi 3: kartu kiri masuk dari kiri, kartu kanan dari kanan */
+            <Reveal key={r.tag} variant={i === 0 ? "left" : "right"} delay={i * 120}>
               <article className="h-full rounded-3xl bg-surface p-8 shadow-[0_16px_40px_-24px_rgba(11,36,23,0.35)]">
                 <span className={`inline-block rounded-full ${r.accent} px-4 py-1.5 text-xs font-extrabold uppercase tracking-wider text-ink`}>
                   {r.tag}
