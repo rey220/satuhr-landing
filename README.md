@@ -19,7 +19,7 @@ Dibangun mengikuti brief stakeholder:
 | Styling | Tailwind CSS v4 + design token | Palet stakeholder dikunci sebagai token resmi |
 | Font | Plus Jakarta Sans | Modern, khas Indonesia, bukan font generik |
 | Animasi | IntersectionObserver + requestAnimationFrame (native) | Ringan, tanpa library animasi tambahan |
-| Deploy | GitHub Pages via GitHub Actions | Otomatis setiap push ke `main` |
+| Deploy | Vercel (terhubung ke repo GitHub ini) | Build & terbit otomatis setiap push ke `main` |
 
 Dokumentasi lengkap untuk stakeholder dan developer ada di [docs/DOKUMENTASI.md](docs/DOKUMENTASI.md).
 
