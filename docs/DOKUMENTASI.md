@@ -134,3 +134,15 @@ Dikerjakan berdasarkan `docs/PRD.md` (Putaran Revisi 1), hasil peninjauan previe
 - **Isu teknis**: T1 label "Live" dipindah ke samping label dashboard (tidak lagi tertimpa badge "Payroll November"); T2 garis Cara Kerja berhenti di tengah kotak langkah 03; T3 indikator dev Next.js dimatikan (`devIndicators: false`).
 - **Format desain**: minimalis (PRD Bagian 4.1) menjadi kompas seluruh perubahan di atas.
 - Verifikasi: `npm run build` lolos (pemeriksaan tipe OK), halaman 8,63 kB, JS muatan pertama 111 kB. Perubahan berada di branch `revisi-1`; `main` belum diubah sampai stakeholder menyetujui hasil preview.
+
+### Addendum Putaran Revisi 1 — mesin animasi diganti ke GSAP (20 November 2026)
+
+Umpan balik stakeholder setelah preview branch `revisi-1`: animasi versi CSS dinilai tidak terasa berjalan (gerakan terlalu kecil/cepat untuk disadari; testimoni tidak beranimasi saat section dicapai karena rotasinya berjalan terus di luar layar). Atas persetujuan stakeholder untuk menambah dependency, mesin animasi diganti total ke **GSAP 3 + ScrollTrigger**:
+
+- `Reveal.tsx` ditulis ulang: GSAP `fromTo` (jarak 56–88px, 0,95s, `power3.out`), ScrollTrigger `toggleActions: "play none none reverse"` — replay dua arah sesuai aturan global.
+- `Counter.tsx` ditulis ulang: tween GSAP 2,4s; angka menghitung naik saat masuk dan turun saat section ditinggalkan.
+- Baru: `Sway.tsx` (goyangan hero 6 detik, timeline GSAP, restart tiap masuk layar) dan `DrawLine.tsx` (garis Cara Kerja, scaleX via ScrollTrigger).
+- `Testimonials.tsx`: blok slider kini dibungkus Reveal (beranimasi saat tiba), rotasi berhenti total di luar layar (IntersectionObserver) dan melakukan satu pergantian ±1,6 detik setelah section masuk layar agar gerakannya selalu disaksikan pengguna.
+- `globals.css`: aturan `.reveal`/`.sway`/`.draw-line` versi CSS dihapus; tersisa animasi kecil (crossfade harga, fade testimoni, progress bar).
+- Dampak ukuran: halaman 53,5 kB, JS muatan pertama 156 kB (dari 111 kB) — konsekuensi GSAP, disetujui demi animasi yang benar-benar terasa.
+- Catatan: setelah `git pull`, jalankan `npm install` (dependency baru: gsap) sebelum `npm run build`. File `package-lock.json` di repo akan diperbarui oleh `npm install` tersebut.
