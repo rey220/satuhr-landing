@@ -36,47 +36,13 @@ body {
   color: var(--color-ink);
 }
 
-/* ---------- Animasi masuk section ----------
-   Aturan global (PRD Bagian 5): animasi BERULANG setiap section masuk
-   viewport lagi — class .is-visible dilepas saat elemen benar-benar
-   keluar layar, dipasang lagi saat masuk (lihat Reveal.tsx). */
-.reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition:
-    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: var(--reveal-delay, 0ms);
-}
-/* Varian arah (Revisi 3): kartu masuk dari kiri / kanan */
-.reveal-left {
-  transform: translateX(-52px);
-}
-.reveal-right {
-  transform: translateX(52px);
-}
-.reveal.is-visible {
-  opacity: 1;
-  transform: translate(0, 0);
-}
+/* ---------- Mesin animasi utama: GSAP + ScrollTrigger ----------
+   Animasi masuk section, hitung angka, goyangan hero, dan garis
+   Cara Kerja kini digerakkan GSAP (lihat Reveal.tsx, Counter.tsx,
+   Sway.tsx, DrawLine.tsx) — bukan CSS di file ini lagi. CSS di bawah
+   hanya untuk animasi kecil yang melekat pada komponen. */
 
-/* ---------- Revisi 1a: teks hero bergoyang halus ±6 detik ----------
-   Berjalan setiap kali hero masuk layar (class .is-visible dari Reveal),
-   lalu berhenti diam di posisi akhir (fill both, keyframe berakhir di 0). */
-@keyframes hero-sway {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(9px); }
-  50% { transform: translateX(0); }
-  75% { transform: translateX(-9px); }
-  100% { transform: translateX(0); }
-}
-.is-visible .sway {
-  /* Delay 0,9s: menunggu animasi masuk (Reveal, 0,7s) selesai dulu,
-     agar dua gerakan transform tidak bertumpuk dan terasa kasar */
-  animation: hero-sway 6s ease-in-out 0.9s both;
-}
-
-/* Fade-out lembut generik */
+/* Fade lembut untuk angka harga saat toggle Bulanan/Tahunan diklik */
 @keyframes crossfade-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -85,7 +51,7 @@ body {
   animation: crossfade-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* ---------- Revisi 4: testimoni track slider ----------
+/* ---------- Testimoni (track slider) ----------
    Pergeseran dilakukan track (translateX + transisi di Testimonials.tsx).
    Di sini hanya fade opacity untuk isi slide aktif — tanpa transform,
    agar tidak bertabrakan dengan gerakan track dan tetap smooth. */
@@ -109,20 +75,6 @@ body {
   animation: t-progress 6s linear forwards;
 }
 
-/* Garis cyan yang "menggambar" dirinya pada section Cara Kerja.
-   Berulang mengikuti aturan global karena terikat .is-visible. */
-@keyframes draw-line {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-.draw-line {
-  transform-origin: left center;
-}
-.reveal.is-visible .draw-line,
-.is-visible .draw-line {
-  animation: draw-line 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
-}
-
 /* Fokus keyboard yang jelas (aksesibilitas) */
 a:focus-visible,
 button:focus-visible,
@@ -132,12 +84,12 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
-/* Hormati user yang mematikan animasi */
+/* Hormati user yang mematikan animasi.
+   Animasi GSAP dicek lewat matchMedia di masing-masing komponen;
+   aturan ini menonaktifkan animasi CSS yang tersisa. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .reveal { opacity: 1; transform: none; transition: none; }
-  .crossfade, .draw-line, .sway,
-  .t-active .t-fade, .t-progress { animation: none; }
+  .crossfade, .t-active .t-fade, .t-progress { animation: none; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
