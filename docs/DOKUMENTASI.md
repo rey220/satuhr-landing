@@ -120,3 +120,17 @@ Mengubah angka: edit array `stats` di `src/components/Stats.tsx` (`end`, `suffix
 - Aksesibilitas: kontras teks lolos WCAG AA (termasuk keputusan tinta gelap di atas hijau), fokus keyboard terlihat jelas, target sentuh ≥ 44px, label formulir eksplisit, dan dukungan `prefers-reduced-motion`.
 - Angka statistik, testimoni, dan harga pada halaman ini adalah **materi demo** untuk evaluasi produk dan harus diganti data asli sebelum peluncuran publik.
 - Roadmap fase 2 (belum dibangun, sesuai kesepakatan agar biaya tidak membengkak di awal): autentikasi (Auth.js), database PostgreSQL, dashboard HR, dan API sesuai desain `api_designer`/`architecture_designer`.
+
+## 9. Putaran Revisi 1 (20 November 2026) — branch `revisi-1`
+
+Dikerjakan berdasarkan `docs/PRD.md` (Putaran Revisi 1), hasil peninjauan preview lokal oleh stakeholder. Ringkasan perubahan:
+
+- **Aturan global animasi**: semua animasi kini *berulang* setiap section masuk viewport lagi (`Reveal` melepas class `is-visible` hanya saat elemen benar-benar keluar layar; `Counter` reset ke 0 dan menghitung ulang).
+- **Revisi 1 (Hero)**: judul + deskripsi bergoyang halus ±6 detik tiap hero masuk layar (`.sway`); angka mockup dashboard (248/12/5) memakai Count-Up.
+- **Revisi 2 (Statistik)**: Count-Up disetel ulang — durasi 2 detik, easing easeOutQuint (lebih smooth).
+- **Revisi 3 (Untuk Siapa)**: kartu kiri masuk dari kiri, kartu kanan dari kanan (variant `Reveal`).
+- **Revisi 4 (Testimoni)**: pergantian geser horizontal mengikuti arah urutan, progress bar 6 detik pada indikator, jeda saat hover/fokus, muncul bertahap (kutipan → inisial → nama), tanda kutip penutup digabung ke kata terakhir agar tidak menggantung.
+- **Revisi 5 (Optimalisasi)**: hero bergradasi halus ke hijau lebih dalam + tinggi dikurangi; strip logo perusahaan (teks redup, demo) di bawah hero; strip keamanan (enkripsi, backup harian, hak akses per peran) sebelum CTA; latar section selang-seling tipis (Fitur & Testimoni hijau sangat pucat); jarak section testimoni dirapatkan; baris "dipercaya" di Statistik dipindah ke strip logo.
+- **Isu teknis**: T1 label "Live" dipindah ke samping label dashboard (tidak lagi tertimpa badge "Payroll November"); T2 garis Cara Kerja berhenti di tengah kotak langkah 03; T3 indikator dev Next.js dimatikan (`devIndicators: false`).
+- **Format desain**: minimalis (PRD Bagian 4.1) menjadi kompas seluruh perubahan di atas.
+- Verifikasi: `npm run build` lolos (pemeriksaan tipe OK), halaman 8,63 kB, JS muatan pertama 111 kB. Perubahan berada di branch `revisi-1`; `main` belum diubah sampai stakeholder menyetujui hasil preview.
