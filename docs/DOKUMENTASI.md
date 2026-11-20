@@ -58,49 +58,59 @@ Catatan jujur: SEO teknis sudah maksimal, tetapi peringkat Google tetap membutuh
 ```
 src/
   app/
-    layout.tsx     Metadata SEO, JSON-LD, font
-    page.tsx       Komposisi semua section
-    sitemap.ts     Sitemap otomatis
-    globals.css    Design token + sistem animasi (.reveal, .crossfade, .draw-line)
+    layout.tsx          Metadata SEO, JSON-LD, font (root layout — wajib di root app/)
+    globals.css         Design token + animasi CSS (crossfade, progress)
+    sitemap.ts          Sitemap otomatis
+    (marketing)/
+      page.tsx          Komposisi semua section (route group — URL tetap "/")
   components/
-    Header.tsx     Navigasi sticky
-    Hero.tsx       Hero + mockup dashboard (murni JSX/CSS)
-    Stats.tsx      Section statistik
-    Counter.tsx    Animated Number Counter (count-up)
-    Reveal.tsx     Wrapper animasi scroll (fade-in)
-    Features.tsx   8 fitur
-    Roles.tsx      HR Manager vs Staf
-    Steps.tsx      Cara kerja 3 langkah
-    Pricing.tsx    Harga + toggle bulanan/tahunan (client)
-    Testimonials.tsx  Carousel crossfade (client)
-    Faq.tsx        FAQ (details/summary, tanpa JS)
-    CtaForm.tsx    Formulir CTA + validasi + honeypot anti-spam (client)
-    Footer.tsx
-public/            favicon.svg, robots.txt
+    layout/
+      Header.tsx        Navigasi sticky
+      Footer.tsx
+    sections/
+      Hero.tsx          Hero + mockup dashboard (murni JSX/CSS)
+      LogoStrip.tsx     Strip logo klien (teks wordmark, materi demo)
+      Stats.tsx         Section statistik
+      Features.tsx      8 fitur
+      Roles.tsx         HR Manager vs Staf
+      Steps.tsx         Cara kerja 3 langkah
+      Pricing.tsx       Harga + toggle bulanan/tahunan (client)
+      Testimonials.tsx  Slider testimoni (client)
+      Faq.tsx           FAQ (details/summary, tanpa JS)
+      SecurityStrip.tsx Strip keamanan satu baris
+      CtaForm.tsx       Formulir CTA + validasi + honeypot anti-spam (client)
+    motion/
+      Reveal.tsx        Wrapper animasi masuk berbasis GSAP ScrollTrigger
+      Counter.tsx       Animated Number Counter (GSAP)
+      Sway.tsx          Goyangan hero 6 detik (GSAP)
+      DrawLine.tsx      Garis Cara Kerja yang terlukis saat scroll (GSAP)
+public/                 favicon.svg, robots.txt
 ```
+
+Struktur dikelompokkan per kategori sejak merge Revisi 1 ke `main` (20 Nov 2026, atas permintaan stakeholder): komponen rangka di `layout/`, isi halaman di `sections/`, dan primitif animasi di `motion/`. File di root `app/` adalah file yang memang diwajibkan Next.js berada di sana (root layout, stylesheet global, sitemap); halaman utama duduk di route group `(marketing)` agar kelak halaman lain (mis. `(auth)`) bisa berdiri sejajar tanpa mengubah URL.
 
 ## 5. Cara Kerja Animated Number Counter
 
-Komponen `src/components/Counter.tsx`:
+Komponen `src/components/motion/Counter.tsx`:
 
 1. `IntersectionObserver` (threshold 0,35) mendeteksi angka masuk viewport.
 2. Animasi berjalan **satu kali** selama ±1,6 detik memakai `requestAnimationFrame` dengan easing *easeOutExpo* (cepat di awal, melambat halus di akhir).
 3. Format angka memakai `toLocaleString("id-ID")` — pemisah ribuan titik (12.500) dan koma desimal (4,9).
 4. *(Diperbarui oleh addendum GSAP di Bagian 9:)* kini digerakkan tween GSAP dan berulang dua arah; dan per keputusan stakeholder 20 Nov 2026, animasi **tidak** lagi mengacu `prefers-reduced-motion` — animasi selalu berjalan.
 
-Mengubah angka: edit array `stats` di `src/components/Stats.tsx` (`end`, `suffix`, `decimals`).
+Mengubah angka: edit array `stats` di `src/components/sections/Stats.tsx` (`end`, `suffix`, `decimals`).
 
 ## 6. Panduan Mengubah Konten
 
 | Yang diubah | File |
 |---|---|
-| Nama produk / teks hero | `src/components/Hero.tsx`, `src/app/layout.tsx` (title & JSON-LD) |
+| Nama produk / teks hero | `src/components/sections/Hero.tsx`, `src/app/layout.tsx` (title & JSON-LD) |
 | Warna | Token `--color-*` di `src/app/globals.css` |
-| Daftar fitur | Array `features` di `src/components/Features.tsx` |
-| Harga paket | Array `plans` di `src/components/Pricing.tsx` |
-| Testimoni | Array `items` di `src/components/Testimonials.tsx` |
-| FAQ | Array `faqs` di `src/components/Faq.tsx` + samakan dengan JSON-LD di `layout.tsx` |
-| Statistik | Array `stats` di `src/components/Stats.tsx` |
+| Daftar fitur | Array `features` di `src/components/sections/Features.tsx` |
+| Harga paket | Array `plans` di `src/components/sections/Pricing.tsx` |
+| Testimoni | Array `items` di `src/components/sections/Testimonials.tsx` |
+| FAQ | Array `faqs` di `src/components/sections/Faq.tsx` + samakan dengan JSON-LD di `layout.tsx` |
+| Statistik | Array `stats` di `src/components/sections/Stats.tsx` |
 | Domain resmi | Ganti `https://satuhr.id` di `layout.tsx`, `sitemap.ts`, `public/robots.txt` |
 
 ## 7. Deploy
