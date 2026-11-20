@@ -17,11 +17,16 @@ if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
  * - Format Indonesia (ribuan titik, desimal koma): 12.500 / 4,9
  * - Keputusan stakeholder (20 Nov 2026): animasi selalu berjalan,
  *   tidak mengacu pada prefers-reduced-motion / setting animasi Windows
- * - instantOnLoad (dipakai counter dashboard hero): bila elemen sudah
- *   tampil di layar saat halaman pertama dimuat/di-refresh, angka
- *   langsung tampil final TANPA bergerak — pemuatan halaman bukan
- *   "kunjungan section", jadi tidak boleh memicu hitungan. Perilaku
- *   scroll setelahnya sama persis seperti counter lain.
+ * - dashboard (dipakai counter dashboard hero): siklus kunjungannya
+ *   disetarakan dengan counter section lain — menghitung NAIK saat
+ *   pengguna tiba di hero, menghitung TURUN saat hero ditinggalkan,
+ *   berulang setiap kunjungan. Karena dashboard sudah tampil sejak
+ *   halaman dimuat, geometri pemicunya berbeda: zona aktif berakhir
+ *   saat elemen keluar di tepi atas layar (end "top top"), berangkat
+ *   memutar reverse dan tiba kembali memutar play. Khusus pemuatan
+ *   awal/refresh: angka langsung tampil final TANPA bergerak —
+ *   refresh bukan "kunjungan", jadi tidak boleh jadi satu-satunya
+ *   pemicu seperti perilaku lama yang dikeluhkan stakeholder.
  */
 export default function Counter({
   end,
@@ -29,7 +34,7 @@ export default function Counter({
   suffix = "",
   decimals = 0,
   duration = 2400,
-  instantOnLoad = false,
+  dashboard = false,
   className = "",
 }: {
   end: number;
@@ -37,7 +42,7 @@ export default function Counter({
   suffix?: string;
   decimals?: number;
   duration?: number;
-  instantOnLoad?: boolean;
+  dashboard?: boolean;
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -67,19 +72,26 @@ export default function Counter({
         scrollTrigger: {
           trigger: el,
           start: "top 90%",
-          toggleActions: "play none none reverse",
+          // Dashboard: berangkat (keluar tepi atas) = reverse/menghitung
+          // turun, tiba kembali = play/menghitung naik — siklus yang sama
+          // dengan counter section lain. Counter biasa: pakai konfigurasi
+          // standar masuk/keluar tepi bawah.
+          ...(dashboard
+            ? { end: "top top", toggleActions: "play reverse play none" }
+            : { toggleActions: "play none none reverse" }),
         },
       });
     });
     // Dashboard hero: elemen sudah di layar sejak halaman dimuat, jadi
     // ScrollTrigger langsung menembakkan onEnter saat refresh. Lewati
-    // pemutaran perdana itu — lompat ke angka final tanpa gerakan.
-    if (instantOnLoad && tween?.scrollTrigger) {
+    // pemutaran perdana itu — lompat ke angka final tanpa gerakan;
+    // siklus scroll di atas yang menjadi pemicu gerakannya.
+    if (dashboard && tween?.scrollTrigger) {
       ScrollTrigger.refresh();
       if (tween.scrollTrigger.isActive) tween.progress(1);
     }
     return () => ctx.revert();
-  }, [end, prefix, suffix, decimals, duration, instantOnLoad]);
+  }, [end, prefix, suffix, decimals, duration, dashboard]);
 
   return (
     <span ref={ref} className={className}>
