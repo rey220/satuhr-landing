@@ -18,6 +18,12 @@ html {
   scroll-behavior: smooth;
 }
 
+html,
+body {
+  /* Penjaga: animasi geser horizontal tidak boleh menimbulkan scroll menyamping */
+  overflow-x: clip;
+}
+
 body {
   background: var(--color-surface);
   color: var(--color-ink);
@@ -30,7 +36,10 @@ body {
   color: var(--color-ink);
 }
 
-/* ---------- Animasi masuk section (fade-in + geser halus, BUKAN flash) ---------- */
+/* ---------- Animasi masuk section ----------
+   Aturan global (PRD Bagian 5): animasi BERULANG setiap section masuk
+   viewport lagi — class .is-visible dilepas saat elemen benar-benar
+   keluar layar, dipasang lagi saat masuk (lihat Reveal.tsx). */
 .reveal {
   opacity: 0;
   transform: translateY(28px);
@@ -39,12 +48,33 @@ body {
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   transition-delay: var(--reveal-delay, 0ms);
 }
+/* Varian arah (Revisi 3): kartu masuk dari kiri / kanan */
+.reveal-left {
+  transform: translateX(-52px);
+}
+.reveal-right {
+  transform: translateX(52px);
+}
 .reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate(0, 0);
 }
 
-/* Fade-out lembut untuk pergantian testimoni */
+/* ---------- Revisi 1a: teks hero bergoyang halus ±6 detik ----------
+   Berjalan setiap kali hero masuk layar (class .is-visible dari Reveal),
+   lalu berhenti diam di posisi akhir (fill both, keyframe berakhir di 0). */
+@keyframes hero-sway {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(9px); }
+  50% { transform: translateX(0); }
+  75% { transform: translateX(-9px); }
+  100% { transform: translateX(0); }
+}
+.is-visible .sway {
+  animation: hero-sway 6s ease-in-out 0.3s both;
+}
+
+/* Fade-out lembut generik */
 @keyframes crossfade-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -53,7 +83,48 @@ body {
   animation: crossfade-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Garis cyan yang "menggambar" dirinya pada section Cara Kerja */
+/* ---------- Revisi 4: testimoni geser horizontal ----------
+   Testimoni lama keluar ke satu sisi, yang baru masuk dari sisi berlawanan;
+   arah mengikuti urutan (state dir di Testimonials.tsx). */
+@keyframes t-in-right {
+  from { opacity: 0; transform: translateX(64px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes t-in-left {
+  from { opacity: 0; transform: translateX(-64px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes t-out-left {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(-64px); }
+}
+@keyframes t-out-right {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(64px); }
+}
+.t-in-right { animation: t-in-right 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.t-in-left { animation: t-in-left 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.t-out-left { animation: t-out-left 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.t-out-right { animation: t-out-right 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Muncul bertahap di dalam testimoni aktif: kutipan → inisial → nama */
+.t-active .t-fade {
+  animation: crossfade-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--t-delay, 0ms);
+}
+
+/* Progress bar indikator testimoni: terisi selama 6 detik (durasi rotasi) */
+@keyframes t-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.t-progress {
+  transform-origin: left center;
+  animation: t-progress 6s linear forwards;
+}
+
+/* Garis cyan yang "menggambar" dirinya pada section Cara Kerja.
+   Berulang mengikuti aturan global karena terikat .is-visible. */
 @keyframes draw-line {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
@@ -79,7 +150,9 @@ select:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
-  .crossfade, .draw-line { animation: none; }
+  .crossfade, .draw-line, .sway,
+  .t-in-right, .t-in-left, .t-out-left, .t-out-right,
+  .t-active .t-fade, .t-progress { animation: none; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
