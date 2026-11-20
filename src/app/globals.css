@@ -84,14 +84,7 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
-/* Hormati user yang mematikan animasi.
-   Animasi GSAP dicek lewat matchMedia di masing-masing komponen;
-   aturan ini menonaktifkan animasi CSS yang tersisa. */
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .crossfade, .t-active .t-fade, .t-progress { animation: none; }
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
+/* Keputusan stakeholder (20 Nov 2026): animasi project TIDAK mengacu
+   pada prefers-reduced-motion / setting animasi Windows — animasi
+   selalu berjalan untuk semua pengunjung. Karena itu file ini (dan
+   komponen GSAP) sengaja TIDAK memiliki gerbang reduced-motion. */
