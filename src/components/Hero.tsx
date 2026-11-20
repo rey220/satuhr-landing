@@ -104,7 +104,7 @@ export default function Hero() {
             {/* Revisi 1a: deskripsi ikut bergoyang, jeda sedikit setelah judul */}
             <p
               className="sway mt-6 max-w-xl text-lg font-medium leading-relaxed text-ink/85"
-              style={{ animationDelay: "0.5s" }}
+              style={{ animationDelay: "1.1s" }}
             >
               Database karyawan, absensi, cuti, payroll, sampai penilaian kinerja —
               dalam satu sistem yang dipakai HR Manager dan seluruh staf setiap hari.
