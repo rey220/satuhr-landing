@@ -15,7 +15,8 @@ if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
  *   gerakannya selalu terlihat dua arah, tidak pernah "sudah selesai"
  *   sebelum pengguna sempat melihat.
  * - Format Indonesia (ribuan titik, desimal koma): 12.500 / 4,9
- * - prefers-reduced-motion: langsung angka akhir, tanpa animasi
+ * - Keputusan stakeholder (20 Nov 2026): animasi selalu berjalan,
+ *   tidak mengacu pada prefers-reduced-motion / setting animasi Windows
  */
 export default function Counter({
   end,
@@ -43,11 +44,6 @@ export default function Counter({
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
       });
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      el.textContent = `${prefix}${fmt(end)}${suffix}`;
-      return;
-    }
 
     const obj = { v: 0 };
     el.textContent = `${prefix}${fmt(0)}${suffix}`;
